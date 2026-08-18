@@ -12,6 +12,8 @@ This implementation of vertex colors is very much based on Blender vertex colors
 > This plugin has some <ins>very</ins> specific features because of my specific use case (Super Mario 64).
 > The most prominent example is that vertex colored meshes will not have shading.
 
+In my eyes this plugin is almost feature-complete already due to its very specific use case. It does what I need it to do.
+
 ## Features
 
 ### The Vertex Painter
