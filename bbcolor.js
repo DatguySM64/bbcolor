@@ -546,7 +546,7 @@ Plugin.register('bbcolor', {
 									if (facing >= COS_225) {
 										t = 0;
 									} else {
-										t = (COS_45 - facing) / (COS_45 + 1);
+										t = (COS_225 - facing) / (COS_225 + 1);
 									}
 									let color = lerpColor(lc, sc, t);
 									const result = color.map((num, index) => num * (shadowed ? st[index] : 1));
