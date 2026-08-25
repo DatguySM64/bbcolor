@@ -5,8 +5,8 @@ let colorprop;
 const degToRad = deg => deg * (Math.PI / 180);
 
 Plugin.register('bbcolor', {
-    title: 'Vertex Colors',
-    author: 'Host',
+    title: 'BBColor',
+    author: 'Datguy',
     icon: 'color_lens',
     description: 'Simple vertex colors in Blockbench',
     version: '1.0.0',
@@ -922,37 +922,6 @@ Plugin.register('bbcolor', {
 					geometry.Layer.LayerElement4 = {
 						_key: 'LayerElement',
 						Type: "LayerElementColor",
-						TypedIndex: 0
-					};
-					geometry.LayerElementUV = {
-						_values: [0],
-						Version: 101,
-						Name: "",
-						MappingInformationType: "ByPolygonVertex",
-						ReferenceInformationType: "Direct",
-						UV: {
-							_values: [`_*${uv.length}`],
-							_type: 'd',
-							a: uv
-						}
-					};
-					geometry.LayerElementTexture = {
-						_values: [0],
-						Version: 101,
-						Name: "",
-						MappingInformationType: "ByPolygon",
-						ReferenceInformationType: "IndexToDirect",
-						BlendMode: "Translucent",
-						TextureAlpha: 1,
-						TextureId: {
-							_values: [`_*${textures.length}`],
-							_type: 'i',
-							a: textures.map(t => used_textures.indexOf(t))
-						}
-					};
-					geometry.Layer.LayerElement4 = {
-						_key: 'LayerElement',
-						Type: "LayerElementTexture",
 						TypedIndex: 0
 					};
 				}
