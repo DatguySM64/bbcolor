@@ -46,6 +46,18 @@ How would you paint a color if there was no color?
 This color picker is the same one as the one in Paint mode, and functions the same as well. The primary color is used for painting. If you swap to the pallete, the selected color there will be used.
 There's not really much to this one, honestly.
 
+### Tint Modes
+
+Tint modes are helpful for adding shadows, or perhaps removing them. There are three tint modes you can pick from:
+- None: Simply sets the vertex color
+- Tint: Tints the existing color and alpha with multiplicative blending.
+- De-tint: Attempts to remove a tint from a vertex.
+
+> [!NOTE]
+> The method of reconstruction from de-tint does not work the greatest; if either the color to remove the tint from
+> or the color used as the tint to remove has 0 as one of its channels, the value gets set to 1 (full white/alpha).
+> This may produce unwanted effects.
+
 ### The Fill Tool
 
 The fill tool can be extremely useful for painting large sections of a mesh quickly. 
@@ -85,13 +97,12 @@ Again, alpha is only applied if "Affect Alpha" is checked. Smooth shading is ful
 ## Extras
 
 One of the key features of this plugin is the ability to export said vertex colors into file formats. Currently only FBX is supported. With FBX exporting, this actually fixes an issue with ASCII exports where all materials use texture #1.
-FBX binary export is still broken, it's experimental for a reason folks.
+FBX binary export is still broken. It's marked as experimental for a reason, folks.
 
 ## Known Issues
 
-- The brush outline does not disappear in select mode.
 - The color panel can be intrusive.
-- The shadow logic for light-based shading is not the greates, it occasionally produces jagged edges.
+- The shadow logic for light-based shading is not the greatest, it occasionally produces jagged edges.
 - Changing a mesh's vertex color toggle status does not immediately update the preview. Any edits made to the mesh will show the modifications.
 
 > [!CAUTION]
