@@ -1,3 +1,5 @@
+// tint modes wip
+// also add function to set color for ease
 let vPaintTool;
 let depthToggle;
 let hasvcprop;
@@ -40,6 +42,24 @@ Plugin.register('bbcolor', {
 			category: 'edit',
 			condition: () => Toolbox?.selected?.id === 'vertex_paint',
 		})
+		let tintMode  = new BarSelect('vpaint_tint', {
+			name: 'Tint Mode',
+			description: 'How to tint the corner',
+			category: 'edit',
+			options: {
+				detint: {
+					name: 'De-tint'
+				},
+				none: {
+					name: 'None'
+				},
+				tint: {
+					name: 'Tint'
+				}
+			},
+			value: 'none',
+			condition: () => Toolbox?.selected?.id === 'vertex_paint',
+		})
 		let alphaToggle  = new Toggle('vpaint_alpha', {
 			name: 'Affect Alpha',
 			description: 'Allows affecting the alpha channel of the color',
@@ -54,10 +74,35 @@ Plugin.register('bbcolor', {
 			category: 'edit',
 			condition: () => Toolbox?.selected?.id === 'vertex_paint',
 		})
-		console.log(selectToggle);
 		selectToggle.on('change', (data) => {
 			vPaintTool.selectElements = data.state;
 		})
+		MeshFace.prototype.setVertexColor = function(color, id) {
+			let setColor;
+			switch (tintMode.value) {
+				case 'detint':
+					setColor = color.map((num, index) => {
+						if (!Number.isFinite(num) || num === 0) {
+							return 1;
+						}
+
+						return Math.min(this.colors[id][index] / num, 1);
+					});
+					break;
+				case 'none':
+					setColor = color;
+					break;
+				case 'tint':
+					setColor = color.map((num, index) => num * this.colors[id][index]);
+					break;
+			};
+			this.colors[id] = [
+				...setColor.slice(0,3),
+				alphaToggle.value
+				? setColor[3]
+				: this.colors[id][3]
+			];
+		}
         let brush_outline;
         let size_slider = new NumSlider('slider_vertex_paint_size', {
 	        condition: () => Toolbox?.selected?.id === 'vertex_paint',
@@ -142,12 +187,7 @@ Plugin.register('bbcolor', {
 					for (const face of Object.values(mesh.faces)) {
 						if (!face.isSelected()) continue;
 						for (let i = 0; i < 4; i++) {
-							face.colors[i] = [
-								...cvtHexToFloat(Panels.color.vue.main_color),
-								alphaToggle.value
-									? alpha_slider.value / 100
-									: face.colors[i][3]
-							];
+							face.setVertexColor([...cvtHexToFloat(Panels.color.vue.main_color), alpha_slider.value / 100], i);
 						}
 					}
 					Mesh.preview_controller.updateGeometry(mesh);
@@ -261,12 +301,7 @@ Plugin.register('bbcolor', {
 										.normalize()
 										.toArray();
 									let interpolatedColor = getQuickShadeColor(c1, c2, worldNormal);
-									face.colors[i] = [
-										...interpolatedColor.splice(0,3),
-										alphaToggle.value
-											? interpolatedColor[3]
-											: face.colors[i][3]
-									];
+									face.setVertexColor(interpolatedColor, i);
 								}
 							}
 							Mesh.preview_controller.updateGeometry(mesh);
@@ -550,12 +585,7 @@ Plugin.register('bbcolor', {
 									}
 									let color = lerpColor(lc, sc, t);
 									const result = color.map((num, index) => num * (shadowed ? st[index] : 1));
-									face.colors[i] = [
-										...result.slice(0,3),
-										alphaToggle.value
-											? result[3]
-											: face.colors[i][3]
-									];
+									face.setVertexColor(result, i);
 								}
 							}
 							Mesh.preview_controller.updateGeometry(mesh);
@@ -634,12 +664,7 @@ Plugin.register('bbcolor', {
 								const dy = scrPos.y - (event.clientY - preview_offset.top);
 
 								if (dx*dx + dy*dy <= radius_sq) {
-									face.colors[i] = [
-										...cvtHexToFloat(Panels.color.vue.main_color),
-										alphaToggle.value
-											? alpha_slider.value / 100
-											: face.colors[i][3]
-									];
+									face.setVertexColor([...cvtHexToFloat(Panels.color.vue.main_color), alpha_slider.value / 100], i);
 
 								}
 							}
@@ -663,7 +688,7 @@ Plugin.register('bbcolor', {
         	if (!brush_outline || Toolbox.selected.id != 'vertex_paint') return;
         	let preview = Preview.selected;
         	preview.node.append(brush_outline);
-        	brush_outline.style.display = (event.altKey || Pressing.overrides.alt) ? 'none' : 'block'
+        	brush_outline.style.display = (event.altKey || Pressing.overrides.alt || selectToggle.value) ? 'none' : 'block'
 
         	if ('clientX' in event) {
         		let preview_offset = $(preview.canvas).offset();
@@ -689,10 +714,11 @@ Plugin.register('bbcolor', {
 			id: 'vertex_paint',
 			no_wrap: true,
 			children: [
+				'vpaint_tint',
 				'slider_vertex_paint_size',
+				'slider_vpaint_alpha',
 				'vpaint_depth',
 				'vpaint_alpha',
-				'slider_vpaint_alpha',
 				'vpaint_sel',
 				'fillfaces',
 				'quick_shade',
